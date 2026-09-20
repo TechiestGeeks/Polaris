@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS Admin — Control Centre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-base:    #F5F7F6;
+            --bg-surface: #FFFFFF;
+            --bg-card:    #FFFFFF;
+            --bg-hover:   #FFD600;
+            --bg-input:   #FFFFFF;
+            --border:     #003B70;
+            --border-md:  #003B70;
+            --accent:     #003B70;
+            --accent-h:   #FFD600;
+            --accent-g:   transparent;
+            --accent-s:   #FFFFFF;
+            --green:      #003B70; --green-s: #FFD600;
+            --red:        #003B70; --red-s:   #FFD600;
+            --yellow:     #FFD600; --yellow-s:#FFFFFF;
+            --blue-s:     #FFFFFF;
+            --text-p:     #003B70;
+            --text-s:     #003B70;
+            --text-m:     #003B70;
+            --sidebar-w:  220px;
+            --header-h:   64px;
+            --tr: all .15s ease-in-out;
+            --shadow:     4px 4px 0px 0px #003B70;
+            --shadow-sm:  2px 2px 0px 0px #003B70;
+        }
+
+        body { font-family:'Inter',sans-serif; background:var(--bg-base); color:var(--text-p); min-height:100vh; overflow-x:hidden; }
+
+        /* ── Layout ── */
+        #adminApp { display:none; }
+        .admin-layout { display:flex; height:100vh; overflow:hidden; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width:var(--sidebar-w); flex-shrink:0;
+            background:var(--bg-surface);
+            border-right:1px solid var(--border);
+            display:flex; flex-direction:column;
+            padding:0; overflow:hidden;
+        }
+        .sidebar-header {
+            height:var(--header-h);
+            display:flex; align-items:center; gap:10px;
+            padding:0 20px;
+            border-bottom:1px solid var(--border);
+        }
+        .sidebar-logo-icon { width:22px; height:22px; color:var(--accent); flex-shrink:0; }
+        .sidebar-logo-text { font-size:14px; font-weight:700; letter-spacing:.1em; }
+
+        .sidebar-nav { flex:1; padding:12px 10px; overflow-y:auto; }
+        .nav-section-label {
+            font-size:9px; font-weight:600; letter-spacing:.12em;
+            color:var(--text-m); text-transform:uppercase;
+            padding:10px 10px 5px;
+        }
+        .nav-item {
+            display:flex; align-items:center; gap:11px;
+            padding:9px 12px; border-radius:0; border:2px solid transparent;
+            cursor:pointer; font-size:13px; font-weight:700; text-transform:uppercase;
+            color:var(--text-s); transition:var(--tr);
+            margin-bottom:4px; user-select:none;
+        }
+        .nav-item:hover { background:var(--yellow); color:var(--text-p); border:2px solid var(--border); box-shadow:var(--shadow-sm); transform:translate(2px,2px); }
+        .nav-item.active { background:var(--accent); color:#ffffff; border:2px solid var(--border); }
+        .nav-item svg { width:16px; height:16px; flex-shrink:0; }
+
+        .sidebar-footer {
+            padding:14px 10px;
+            border-top:1px solid var(--border);
+        }
+        .sidebar-promo {
+            background:var(--accent-s);
+            border:1px solid var(--border);
+            border-radius:0; padding:14px; box-shadow:var(--shadow-sm);
+        }
+        .sidebar-promo .promo-title { font-size:12px; font-weight:800; text-transform:uppercase; color:var(--text-p); margin-bottom:4px; }
+        .sidebar-promo .promo-sub   { font-size:11px; color:var(--text-s); }
+
+        /* ── Main ── */
+        .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+        .top-bar {
+            height:var(--header-h); flex-shrink:0;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 28px; background:var(--bg-surface);
+            border-bottom:1px solid var(--border);
+        }
+        .search-bar {
+            display:flex; align-items:center; gap:10px;
+            background:var(--bg-input); border:2px solid var(--border);
+            border-radius:0; padding:8px 14px; box-shadow:var(--shadow-sm);
+            width:340px; cursor:text;
+        }
+        .search-bar input {
+            background:transparent; border:none; outline:none;
+            font-family:'Inter',sans-serif; font-size:13px; color:var(--text-p);
+            width:100%;
+        }
+        .search-bar input::placeholder { color:var(--text-m); }
+        .search-bar svg { width:14px; height:14px; color:var(--text-m); flex-shrink:0; }
+        .top-bar-right { display:flex; align-items:center; gap:14px; }
+        .icon-btn {
+            width:40px; height:40px; border-radius:0;
+            display:flex; align-items:center; justify-content:center;
+            background:var(--bg-card); border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            cursor:pointer; color:var(--text-s); transition:var(--tr);
+        }
+        .icon-btn:hover { background:var(--bg-hover); color:var(--text-p); transform:translate(2px,2px); box-shadow:none; }
+        .admin-badge {
+            display:flex; align-items:center; gap:8px;
+            background:var(--bg-card); border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            border-radius:0; padding:5px 14px 5px 8px; cursor:pointer;
+            transition:var(--tr);
+        }
+        .admin-badge:hover { background:var(--bg-hover); transform:translate(2px,2px); box-shadow:none; }
+        .admin-avatar {
+            width:28px; height:28px; border-radius:0; border:2px solid var(--border);
+            background:var(--accent);
+            display:flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:700; color:#fff;
+        }
+        .admin-badge-name { font-size:13px; color:var(--text-s); font-weight:500; }
+        .admin-crown { font-size:12px; }
+        .admin-badge-role {
+            font-size:10px; font-weight:700; letter-spacing:.08em;
+            background:transparent; color:var(--accent);
+        }
+        .admin-dropdown-wrap { position:relative; }
+        .admin-dropdown {
+            position:absolute; top:calc(100% + 12px); right:0;
+            background:var(--bg-card); border:2px solid var(--border);
+            border-radius:0; padding:0; min-width:180px;
+            box-shadow:var(--shadow); z-index:300; display:none;
+        }
+        .admin-dropdown.open { display:block; animation:fadeIn .15s ease; }
+        .dd-item {
+            display:flex; align-items:center; gap:10px;
+            padding:12px 16px; border-radius:0; cursor:pointer;
+            font-size:13px; font-weight:700; text-transform:uppercase; color:var(--text-s); transition:var(--tr);
+        }
+        .dd-item:hover { background:var(--bg-hover); color:var(--text-p); }
+        .dd-item.danger:hover { background:var(--accent); color:#ffffff; }
+        .dd-divider { height:2px; background:var(--border); margin:0; }
+
+        /* ── Page Body ── */
+        .page-body { flex:1; overflow-y:auto; padding:32px 28px; }
+        .page-body::-webkit-scrollbar { width:5px; }
+        .page-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+
+        /* ── Welcome ── */
+        .welcome-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+        .welcome-title { font-size:24px; font-weight:700; margin-bottom:4px; }
+        .welcome-sub { font-size:13px; color:var(--text-s); }
+        .welcome-date { text-align:right; font-size:12px; color:var(--text-s); }
+
+        /* ── Stats ── */
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+        .stat-card {
+            background:var(--bg-card); border:2px solid var(--border);
+            border-radius:0; padding:20px; box-shadow:var(--shadow);
+            display:flex; align-items:center; gap:16px;
+            transition:var(--tr);
+        }
+        .stat-card:hover { transform:translate(2px,2px); box-shadow:var(--shadow-sm); background:var(--yellow); }
+        .stat-icon {
+            width:48px; height:48px; border-radius:0; border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+        }
+        .stat-icon svg { width:22px; height:22px; }
+        .stat-icon.blue  { background:var(--blue-s);   color:var(--accent); }
+        .stat-icon.green { background:var(--green-s);  color:var(--green); }
+        .stat-icon.yellow{ background:var(--yellow-s); color:var(--yellow); }
+        .stat-icon.red   { background:var(--red-s);    color:var(--red); }
+        .stat-val { font-size:26px; font-weight:700; }
+        .stat-label { font-size:12px; color:var(--text-s); margin-top:2px; }
+        .stat-change { font-size:11px; color:var(--green); margin-top:4px; }
+
+        /* ── Tab Section ── */
+        .section-card {
+            background:var(--bg-card); border:2px solid var(--border); box-shadow:var(--shadow);
+            border-radius:0; overflow:hidden;
+        }
+        .section-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:20px 24px 0;
+        }
+        .tab-bar { display:flex; gap:4px; padding:0 24px; margin-top:16px; border-bottom:1px solid var(--border); }
+        .tab {
+            padding:10px 16px; font-size:13px; font-weight:500;
+            color:var(--text-s); cursor:pointer; border-bottom:2px solid transparent;
+            transition:var(--tr); display:flex; align-items:center; gap:7px;
+        }
+        .tab:hover { color:var(--text-p); }
+        .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+        .tab svg { width:14px; height:14px; }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+
+        /* ── Table Toolbar ── */
+        .table-toolbar {
+            display:flex; align-items:center; gap:10px;
+            padding:16px 24px;
+        }
+        .table-search {
+            display:flex; align-items:center; gap:8px;
+            background:var(--bg-input); border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            border-radius:0; padding:7px 12px; flex:1; max-width:280px; transition:var(--tr);
+        }
+        .table-search:focus-within { transform:translate(2px,2px); box-shadow:none; background:var(--yellow); }
+        .table-search input {
+            background:transparent; border:none; outline:none;
+            font-size:13px; color:var(--text-p); width:100%;
+            font-family:'Inter',sans-serif;
+        }
+        .table-search input::placeholder { color:var(--text-m); }
+        .table-search svg { width:13px; height:13px; color:var(--text-m); flex-shrink:0; }
+        .btn-outline {
+            display:flex; align-items:center; gap:6px;
+            background:transparent; border:1px solid var(--border);
+            border-radius:8px; padding:7px 14px;
+            font-size:12px; font-weight:500; color:var(--text-s);
+            cursor:pointer; transition:var(--tr); font-family:'Inter',sans-serif;
+        }
+        .btn-outline:hover { border-color:var(--border-md); color:var(--text-p); }
+        .btn-outline svg { width:13px; height:13px; }
+        .btn-accent {
+            display:flex; align-items:center; gap:6px;
+            background:var(--accent); border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            border-radius:0; padding:8px 16px;
+            font-size:13px; font-weight:800; color:#fff; text-transform:uppercase;
+            cursor:pointer; transition:var(--tr); font-family:'Inter',sans-serif;
+            margin-left:auto;
+        }
+        .btn-accent:hover { background:var(--bg-hover); color:var(--accent); transform:translate(2px,2px); box-shadow:none; }
+        .btn-accent svg { width:14px; height:14px; }
+
+        /* ── Table ── */
+        .data-table { width:100%; border-collapse:collapse; }
+        .data-table th {
+            text-align:left; font-size:11px; font-weight:600;
+            letter-spacing:.08em; text-transform:uppercase; color:var(--text-m);
+            padding:10px 24px; border-bottom:1px solid var(--border);
+            white-space:nowrap;
+        }
+        .data-table td {
+            padding:14px 24px; font-size:13px; color:var(--text-s);
+            border-bottom:1px solid var(--border);
+            vertical-align:middle;
+        }
+        .data-table tr:last-child td { border-bottom:none; }
+        .data-table tr:hover td { background:var(--bg-hover); }
+        .emp-cell { display:flex; align-items:center; gap:12px; }
+        .emp-avatar {
+            width:34px; height:34px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
+        }
+        .emp-name { font-size:13px; font-weight:500; color:var(--text-p); }
+        .emp-email { font-size:11px; color:var(--text-m); margin-top:2px; }
+
+        .badge {
+            display:inline-flex; align-items:center;
+            border-radius:6px; padding:3px 9px; font-size:11px; font-weight:600;
+        }
+        .badge-active  { background:var(--green-s);  color:var(--green); }
+        .badge-review  { background:var(--yellow-s); color:var(--yellow); }
+        .badge-inactive{ background:#f3f4f6; color:var(--text-s); }
+        .badge-standard{ background:var(--blue-s);   color:var(--accent); }
+        .badge-exception{background:var(--yellow-s); color:var(--yellow); }
+        .badge-regional{ background:#f5f3ff; color:#8b5cf6; }
+
+        .access-badge {
+            display:inline-flex; align-items:center;
+            border-radius:0; padding:3px 9px; font-size:11px; font-weight:800;
+            font-family:monospace; background:var(--accent); color:#ffffff;
+            border:2px solid var(--border); box-shadow:var(--shadow-sm);
+        }
+
+        .action-menu-wrap { position:relative; display:inline-block; }
+        .action-btn {
+            background:var(--white); border:2px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer;
+            color:var(--text-m); padding:4px 8px; border-radius:0;
+            transition:var(--tr); font-size:18px; line-height:1; font-weight:800;
+        }
+        .action-btn:hover { background:var(--bg-hover); color:var(--text-p); transform:translate(2px,2px); box-shadow:none; }
+        .action-menu {
+            display:none; position:absolute; right:0; top:100%;
+            background:var(--bg-card); border:2px solid var(--border);
+            border-radius:0; padding:0; min-width:160px;
+            box-shadow:var(--shadow); z-index:200;
+        }
+        .action-menu.open { display:block; }
+        .action-menu-item {
+            display:flex; align-items:center; gap:8px;
+            padding:10px 14px; border-radius:0; cursor:pointer;
+            font-size:13px; font-weight:700; text-transform:uppercase; color:var(--text-s); transition:var(--tr);
+        }
+        .action-menu-item:hover { background:var(--bg-hover); color:var(--text-p); }
+        .action-menu-item.danger:hover { background:var(--accent); color:#ffffff; }
+        .action-menu-item svg { width:13px; height:13px; }
+
+        .table-pagination {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 24px; border-top:1px solid var(--border);
+            font-size:12px; color:var(--text-s);
+        }
+        .page-btns { display:flex; gap:4px; }
+        .page-btn {
+            width:32px; height:32px; border-radius:0; border:2px solid var(--border); box-shadow:var(--shadow-sm);
+            background:var(--white); font-size:13px; font-weight:800;
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            color:var(--text-p); transition:var(--tr); font-family:'Inter',sans-serif;
+        }
+        .page-btn:hover:not(:disabled) { background:var(--yellow); transform:translate(2px,2px); box-shadow:none; }
+        .page-btn.active { background:var(--accent); color:#fff; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .modal-actions { display:flex; gap:10px; margin-top:24px; justify-content:flex-end; }
+        .btn-cancel {
+            background:transparent; border:1px solid var(--border);
+            border-radius:8px; padding:10px 20px; font-size:13px; font-weight:500;
+            color:var(--text-s); cursor:pointer; transition:var(--tr); font-family:'Inter',sans-serif;
+        }
+        .btn-cancel:hover { border-color:var(--border-md); color:var(--text-p); }
+        .btn-save {
+            background:var(--accent); border:none; border-radius:8px;
+            padding:10px 24px; font-size:13px; font-weight:600; color:#fff;
+            cursor:pointer; transition:var(--tr); font-family:'Inter',sans-serif;
+        }
+        .btn-save:hover { background:var(--accent-h); }
+        .btn-save:disabled { opacity:.5; cursor:not-allowed; }
+        .form-error { font-size:12px; color:var(--red); margin-top:8px; display:none; }
+
+        /* ── Modals & Forms ── */
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,59,112,0.8); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+        .modal-backdrop.open { display: flex; animation: fadeIn 0.15s ease; }
+        .modal { background: var(--bg-card); border: 2px solid var(--border); border-radius: 0; width: 100%; max-width: 500px; padding: 32px; position: relative; box-shadow: var(--shadow); }
+        .modal-title { font-size: 20px; font-weight: 700; color: var(--text-p); margin-bottom: 8px; }
+        .modal-sub { font-size: 13px; color: var(--text-s); margin-bottom: 24px; }
+        .form-row { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-s); margin-bottom: 6px; letter-spacing: 0.05em; }
+        .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-input); border: 2px solid var(--border); border-radius: 0; padding: 10px 14px; font-size: 13px; color: var(--text-p); font-family: 'Inter', sans-serif; outline: none; transition: var(--tr); box-shadow: var(--shadow-sm); }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { background: var(--yellow); transform: translate(2px, 2px); box-shadow: none; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+
+        /* ── Animations ── */
+        @keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+        /* ── Empty state ── */
+        .empty-state { padding:60px 24px; text-align:center; color:var(--text-s); font-size:13px; }
+        .empty-state svg { width:40px; height:40px; color:var(--text-m); margin-bottom:12px; }
+
+        /* ── Responsive ── */
+        @media(max-width:900px) { .stats-grid{grid-template-columns:1fr 1fr;} }
+        @media(max-width:640px) { .sidebar{display:none;} .stats-grid{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div id="adminLogin" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-base);">
+    <div style="background:var(--bg-card);border:3px solid var(--border);border-radius:0;padding:48px 40px;width:100%;max-width:400px;box-shadow:8px 8px 0px 0px var(--border);">
+        <div style="text-align:center;margin-bottom:32px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--accent)" style="display:block;margin:0 auto 16px"><path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z"/></svg>
+            <div style="font-size:28px;font-weight:800;letter-spacing:.1em;color:var(--text-p);margin-bottom:8px;text-transform:uppercase;">POLARIS</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-p);">Admin Control Centre</div>
+            <div style="display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:11px;font-weight:800;letter-spacing:.1em;background:var(--yellow);border:2px solid var(--border);border-radius:0;padding:4px 12px;color:var(--accent);box-shadow:var(--shadow-sm);">ADMIN ACCESS</div>
+        </div>
+        <div id="adminLoginError" style="background:var(--yellow);border:2px solid var(--accent);border-radius:0;padding:12px 16px;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:20px;display:none;box-shadow:var(--shadow-sm);"></div>
+        <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-p);margin-bottom:8px;">Username</label>
+            <input type="text" id="adminUser" style="width:100%;background:var(--bg-input);border:2px solid var(--border);border-radius:0;padding:14px 16px;font-size:16px;font-weight:600;color:var(--text-p);font-family:Inter,sans-serif;outline:none;transition:var(--tr);box-shadow:3px 3px 0px 0px var(--border);" placeholder="Admin" autocomplete="username">
+        </div>
+        <div style="margin-bottom:24px;">
+            <label style="display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-p);margin-bottom:8px;">Password</label>
+            <input type="password" id="adminPass" style="width:100%;background:var(--bg-input);border:2px solid var(--border);border-radius:0;padding:14px 16px;font-size:16px;font-weight:600;color:var(--text-p);font-family:Inter,sans-serif;outline:none;transition:var(--tr);box-shadow:3px 3px 0px 0px var(--border);" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button id="adminLoginBtn" onclick="adminLogin()" style="width:100%;background:var(--accent);color:#fff;border:2px solid var(--border);border-radius:0;padding:16px 20px;font-size:16px;font-weight:800;text-transform:uppercase;cursor:pointer;font-family:Inter,sans-serif;transition:var(--tr);box-shadow:4px 4px 0px 0px var(--border);">Sign in as Admin</button>
+        <div style="text-align:center;margin-top:24px;font-size:13px;font-weight:600;color:var(--text-p);border-top:2px solid var(--border);padding-top:16px;">Restricted access — authorised personnel only</div>
+        <div style="text-align:center;margin-top:16px;">
+            <a href="/" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none;text-transform:uppercase;">&larr; Back to employee portal</a>
+        </div>
+    </div>
+</div>
+
+<!-- ====== ADMIN APP ====== -->
+<div id="adminApp">
+    <div class="admin-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg class="sidebar-logo-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z"/></svg>
+                <span class="sidebar-logo-text">POLARIS</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
+                <div class="nav-item active" onclick="switchView('dashboard',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </div>
+                <div class="nav-section-label">Manage</div>
+                <div class="nav-item" onclick="switchView('employees',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Employees
+                </div>
+                <div class="nav-item" onclick="switchView('vendors',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Vendors
+                </div>
+                <div class="nav-item" onclick="switchView('policies',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Policies
+                </div>
+                <div class="nav-section-label">System</div>
+                <div class="nav-item" onclick="switchView('escalations',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Escalations
+                </div>
+                <div class="nav-item" onclick="adminLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sign Out
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-promo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#4f6ef7" style="margin-bottom:6px"><path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z"/></svg>
+                    <div class="promo-title">Clear policies.</div>
+                    <div class="promo-sub">Stronger teams.</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="search-bar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="globalSearch" placeholder="Search employees, vendors, policies…" oninput="handleGlobalSearch(this.value)">
+                    <span style="font-size:10px;color:#3d5a7a;white-space:nowrap;background:#07111f;border:1px solid rgba(82,130,180,.12);border-radius:4px;padding:2px 6px;">Ctrl K</span>
+                </div>
+                <div class="top-bar-right">
+                    <div class="icon-btn" title="Notifications">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div class="admin-dropdown-wrap">
+                        <div class="admin-badge" onclick="toggleAdminDropdown()">
+                            <div class="admin-avatar">A</div>
+                            <span class="admin-badge-name">Alex</span>
+                            <span class="admin-crown">👑</span>
+                            <span class="admin-badge-role">Admin</span>
+                            <span style="font-size:11px;color:#3d5a7a;">▾</span>
+                        </div>
+                        <div class="admin-dropdown" id="adminDropdown">
+                            <div class="dd-item">Admin · Control Centre</div>
+                            <div class="dd-divider"></div>
+                            <div class="dd-item danger" onclick="adminLogout()">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Sign Out
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-body">
+
+                <!-- DASHBOARD VIEW -->
+                <div id="view-dashboard" class="tab-panel active">
+                    <div class="welcome-row">
+                        <div>
+                            <div class="welcome-title">Welcome back, Admin 👋</div>
+                            <div class="welcome-sub">Manage your people, vendors, and company policies all in one place.</div>
+                        </div>
+                        <div class="welcome-date" id="adminDate"></div>
+                    </div>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="stat-val" id="stat-emp">—</div><div class="stat-label">Employees</div><div class="stat-change">↑ Active headcount</div></div></div>
+                        <div class="stat-card"><div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div class="stat-val" id="stat-ven">—</div><div class="stat-label">Vendors</div><div class="stat-change" id="stat-ven-active"></div></div></div>
+                        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val" id="stat-pol">—</div><div class="stat-label">Active Policies</div><div class="stat-change">↑ Coverage expanding</div></div></div>
+                        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-val" style="color:var(--green)">100%</div><div class="stat-label">Compliance Rate</div><div class="stat-change" style="color:var(--green)">No outstanding violations</div></div></div>
+                    </div>
+
+                    <!-- Inline tabbed table on dashboard -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div>
+                                <div style="font-size:15px;font-weight:600;" id="dashTableTitle">Employees</div>
+                                <div style="font-size:12px;color:var(--text-s);margin-top:3px;" id="dashTableSub">View and manage all records</div>
+                            </div>
+                        </div>
+                        <div class="tab-bar">
+                            <div class="tab active" onclick="switchDashTab('employees',this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                Employees
+                            </div>
+                            <div class="tab" onclick="switchDashTab('vendors',this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                Vendors
+                            </div>
+                            <div class="tab" onclick="switchDashTab('policies',this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                Policies
+                            </div>
+                        </div>
+                        <div id="dashTableContent"></div>
+                    </div>
+                </div><!-- /dashboard -->
+
+                <!-- EMPLOYEES FULL VIEW -->
+                <div id="view-employees" class="tab-panel">
+                    <div class="welcome-row" style="margin-bottom:20px;">
+                        <div><div class="welcome-title" style="font-size:20px;">Employees</div><div class="welcome-sub">Manage employee access levels, roles, and departments.</div></div>
+                        <button class="btn-accent" onclick="openModal('addEmployee')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Employee
+                        </button>
+                    </div>
+                    <div class="section-card">
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Search employees…" oninput="filterEmpTable(this.value)">
+                            </div>
+                        </div>
+                        <div id="empTable"></div>
+                    </div>
+                </div>
+
+                <!-- VENDORS FULL VIEW -->
+                <div id="view-vendors" class="tab-panel">
+                    <div class="welcome-row" style="margin-bottom:20px;">
+                        <div><div class="welcome-title" style="font-size:20px;">Vendors</div><div class="welcome-sub">Manage third-party vendor relationships and compliance status.</div></div>
+                        <button class="btn-accent" onclick="openModal('addVendor')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Vendor
+                        </button>
+                    </div>
+                    <div class="section-card">
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Search vendors…" oninput="filterVendorTable(this.value)">
+                            </div>
+                        </div>
+                        <div id="vendorTable"></div>
+                    </div>
+                </div>
+
+                <!-- POLICIES FULL VIEW -->
+                <div id="view-policies" class="tab-panel">
+                    <div class="welcome-row" style="margin-bottom:20px;">
+                        <div><div class="welcome-title" style="font-size:20px;">Policies</div><div class="welcome-sub">Create and manage global, regional, and exception policies.</div></div>
+                        <button class="btn-accent" onclick="openModal('addPolicy')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            New Policy
+                        </button>
+                    </div>
+                    <div class="section-card">
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Search policies…" oninput="filterPolicyTable(this.value)">
+                            </div>
+                        </div>
+                        <div id="policyTable"></div>
+                    </div>
+                </div>
+
+                <!-- ESCALATIONS FULL VIEW -->
+                <div id="view-escalations" class="tab-panel">
+                    <div class="welcome-row" style="margin-bottom:20px;">
+                        <div><div class="welcome-title" style="font-size:20px;">Escalations</div><div class="welcome-sub">Resolve policy violations and complex employee queries.</div></div>
+                    </div>
+                    <div class="section-card">
+                        <div id="escalationTable"></div>
+                    </div>
+                </div>
+
+            </div><!-- /page-body -->
+        </div><!-- /main-content -->
+    </div><!-- /admin-layout -->
+</div><!-- /adminApp -->
+
+
+<!-- ====== MODALS ====== -->
+
+<!-- Add Employee -->
+<div class="modal-backdrop" id="modal-addEmployee">
+    <div class="modal">
+        <div class="modal-title">Add Employee</div>
+        <div class="modal-sub">Add a new employee to POLARIS. They can log in using their full name.</div>
+        <div class="form-row"><label class="form-label">Full Name</label><input class="form-input" id="emp-name" placeholder="e.g. Priya Sharma"></div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Department</label>
+                <select class="form-select" id="emp-dept">
+                    <option>Engineering</option><option>Finance</option><option>HR</option>
+                    <option>Marketing</option><option>Operations</option><option>Sales</option><option>Legal</option>
+                </select>
+            </div>
+            <div class="form-row"><label class="form-label">Region</label>
+                <select class="form-select" id="emp-region">
+                    <option>India</option><option>EU</option><option>Global</option><option>US</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Role</label>
+                <select class="form-select" id="emp-role">
+                    <option>Intern</option><option>Junior</option><option>Senior</option>
+                    <option>Manager</option><option>Director</option><option>VP</option><option>Executive</option>
+                </select>
+            </div>
+            <div class="form-row"><label class="form-label">Access Level</label>
+                <select class="form-select" id="emp-access">
+                    <option value="L0-INTERN">L0-INTERN</option>
+                    <option value="L1-JUNIOR">L1-JUNIOR</option>
+                    <option value="L2-SENIOR">L2-SENIOR</option>
+                    <option value="L3-MANAGER">L3-MANAGER</option>
+                    <option value="L4-DIRECTOR">L4-DIRECTOR</option>
+                    <option value="L5-EXEC">L5-EXEC</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-error" id="emp-err"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('addEmployee')">Cancel</button>
+            <button class="btn-save" id="emp-save-btn" onclick="saveEmployee()">Add Employee</button>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade/Downgrade Employee -->
+<div class="modal-backdrop" id="modal-upgradeEmployee">
+    <div class="modal">
+        <div class="modal-title" id="upgrade-title">Upgrade Employee</div>
+        <div class="modal-sub" id="upgrade-sub">Change the role and access level for this employee.</div>
+        <input type="hidden" id="upgrade-emp-id">
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">New Role</label>
+                <select class="form-select" id="upgrade-role">
+                    <option>Intern</option><option>Junior</option><option>Senior</option>
+                    <option>Manager</option><option>Director</option><option>VP</option><option>Executive</option>
+                </select>
+            </div>
+            <div class="form-row"><label class="form-label">New Access Level</label>
+                <select class="form-select" id="upgrade-access">
+                    <option value="L0-INTERN">L0-INTERN</option>
+                    <option value="L1-JUNIOR">L1-JUNIOR</option>
+                    <option value="L2-SENIOR">L2-SENIOR</option>
+                    <option value="L3-MANAGER">L3-MANAGER</option>
+                    <option value="L4-DIRECTOR">L4-DIRECTOR</option>
+                    <option value="L5-EXEC">L5-EXEC</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-error" id="upgrade-err"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('upgradeEmployee')">Cancel</button>
+            <button class="btn-save" onclick="saveUpgrade()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Policy -->
+<div class="modal-backdrop" id="modal-addPolicy">
+    <div class="modal">
+        <div class="modal-title">Create Policy</div>
+        <div class="modal-sub">Create a new policy rule. Set type to "exception" to override standard policies.</div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Policy ID</label><input class="form-input" id="pol-id" placeholder="e.g. LEAVE-SPECIAL-EU"></div>
+            <div class="form-row"><label class="form-label">Type</label>
+                <select class="form-select" id="pol-type">
+                    <option value="standard">Standard</option>
+                    <option value="exception">Exception</option>
+                    <option value="regional">Regional</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row"><label class="form-label">Policy Content</label><textarea class="form-textarea" id="pol-content" placeholder="e.g. EU employees are entitled to 5 extra leave days per quarter."></textarea></div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Region</label>
+                <select class="form-select" id="pol-region"><option>GLOBAL</option><option>India</option><option>EU</option><option>US</option></select>
+            </div>
+            <div class="form-row"><label class="form-label">Priority (1–100)</label>
+                <input class="form-input" id="pol-priority" type="number" min="1" max="100" value="60">
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Applies to Role</label>
+                <select class="form-select" id="pol-role"><option>ALL</option><option>Intern</option><option>Junior</option><option>Senior</option><option>Manager</option><option>Executive</option></select>
+            </div>
+            <div class="form-row"><label class="form-label">Applies to Vendor</label>
+                <input class="form-input" id="pol-vendor" placeholder="ALL or vendor name">
+            </div>
+        </div>
+        <div class="form-error" id="pol-err"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('addPolicy')">Cancel</button>
+            <button class="btn-save" id="pol-save-btn" onclick="savePolicy()">Create Policy</button>
+        </div>
+    </div>
+</div>
+
+<!-- Resolve Escalation -->
+<div class="modal-backdrop" id="modal-resolveEscalation">
+    <div class="modal">
+        <div class="modal-title" id="resolve-title">Resolve Escalation</div>
+        <div class="modal-sub" id="resolve-sub">Provide a resolution message for the employee.</div>
+        <div class="form-error" id="resolve-err"></div>
+        
+        <input type="hidden" id="resolve-esc-id">
+        
+        <div class="form-row">
+            <label class="form-label">Context</label>
+            <div id="resolve-context" style="background:var(--bg-input);padding:10px;font-size:12px;font-family:monospace;white-space:pre-wrap;max-height:120px;overflow-y:auto;border:2px solid var(--border);"></div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Resolution Message</label>
+            <textarea id="resolve-response" class="form-textarea" placeholder="e.g. I have reviewed your request and..."></textarea>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('resolveEscalation')">Cancel</button>
+            <button class="btn-save" id="resolve-save-btn" onclick="saveResolution()">Resolve</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Vendor -->
+<div class="modal-backdrop" id="modal-addVendor">
+    <div class="modal">
+        <div class="modal-title">Add Vendor</div>
+        <div class="modal-sub">Register a new third-party vendor in POLARIS.</div>
+        <div class="form-row"><label class="form-label">Company Name</label><input class="form-input" id="ven-name" placeholder="e.g. CloudVault Systems"></div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Category</label><input class="form-input" id="ven-cat" placeholder="e.g. Cloud Infrastructure"></div>
+            <div class="form-row"><label class="form-label">Region</label>
+                <select class="form-select" id="ven-region"><option>Global</option><option>India</option><option>EU</option><option>US</option></select>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-row"><label class="form-label">Contact Email</label><input class="form-input" id="ven-contact" type="email" placeholder="contact@vendor.com"></div>
+            <div class="form-row"><label class="form-label">Contract End Date</label><input class="form-input" id="ven-end" type="date"></div>
+        </div>
+        <div class="form-row"><label class="form-label">Compliance Standards</label><input class="form-input" id="ven-comp" placeholder="e.g. SOC2, GDPR, ISO27001"></div>
+        <div class="form-row"><label class="form-label">Status</label>
+            <select class="form-select" id="ven-status"><option>Active</option><option>Under Review</option><option>Inactive</option></select>
+        </div>
+        <div class="form-error" id="ven-err"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('addVendor')">Cancel</button>
+            <button class="btn-save" id="ven-save-btn" onclick="saveVendor()">Add Vendor</button>
+        </div>
+    </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

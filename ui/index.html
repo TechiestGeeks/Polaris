@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS — Enterprise Policy Reasoning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --white: #FFFFFF;
+            --navy: #003B70;
+            --yellow: #FFD600;
+
+            --bg-base: #F5F7F6;
+            --bg-surface: var(--white);
+            --bg-card: var(--white);
+            --bg-input: var(--white);
+            --bg-hover: var(--yellow);
+
+            --border: var(--navy);
+            --border-focus: var(--navy);
+
+            --accent: var(--navy);
+            --accent-hover: var(--yellow);
+            --accent-soft: var(--white);
+
+            --text-primary: var(--navy);
+            --text-secondary: var(--navy);
+            --text-muted: var(--navy);
+            --text-label: var(--navy);
+
+            --green: var(--navy);
+            --red: var(--navy);
+
+            --badge-bg: var(--yellow);
+            --badge-text: var(--navy);
+
+            /* Neo-brutalist shadow */
+            --shadow: 4px 4px 0px 0px var(--navy);
+            --shadow-hover: 2px 2px 0px 0px var(--navy);
+
+            --transition: all 0.15s ease;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ========= STAR LOGO ========= */
+        .star-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .star-icon {
+            width: 22px;
+            height: 22px;
+            color: var(--navy);
+            flex-shrink: 0;
+        }
+
+        .star-logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: var(--navy);
+            text-transform: uppercase;
+        }
+
+        /* ========= HEADER ========= */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            height: 64px;
+            background: var(--white);
+            border-bottom: 2px solid var(--navy);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            /* Flat */
+            padding: 4px 12px 4px 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .user-pill:hover {
+            background: var(--yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 0;
+            background: var(--navy);
+            border: 2px solid var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .user-pill:hover .user-avatar {
+            background: var(--white);
+            color: var(--navy);
+        }
+
+        .user-pill-name {
+            font-size: 14px;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .user-pill-chevron {
+            font-size: 12px;
+            color: var(--navy);
+            margin-left: 2px;
+            font-weight: 800;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 0;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            z-index: 200;
+        }
+
+        .user-dropdown.open {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--yellow);
+        }
+
+        .dropdown-item.danger:hover {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .dropdown-divider {
+            height: 2px;
+            background: var(--navy);
+            margin: 0;
+        }
+
+        /* ========= SCREENS ========= */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========= LOGIN SCREEN ========= */
+        #loginScreen {
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-base);
+        }
+
+        .login-card {
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 0;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 8px 8px 0px 0px var(--navy);
+        }
+
+        .login-logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo-section .star-icon {
+            width: 48px;
+            height: 48px;
+            display: block;
+            margin: 0 auto 16px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--navy);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .login-subtitle {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: var(--navy);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .field-input {
+            width: 100%;
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 3px 3px 0px 0px var(--navy);
+        }
+
+        .field-input::placeholder {
+            color: var(--navy);
+            opacity: 0.5;
+        }
+
+        .field-input:focus {
+            background: var(--yellow);
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--navy);
+            color: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: var(--transition);
+            box-shadow: 4px 4px 0px 0px var(--navy);
+        }
+
+        .btn-primary:hover {
+            background: var(--yellow);
+            color: var(--navy);
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .login-footer {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-top: 24px;
+            border-top: 2px solid var(--navy);
+            padding-top: 16px;
+        }
+
+        .login-error {
+            background: var(--yellow);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 3px 3px 0px 0px var(--navy);
+        }
+
+        .login-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid var(--white);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .btn-primary:hover .login-spinner {
+            border-color: var(--navy);
+            border-top-color: transparent;
+        }
+
+        /* ========= HOME SCREEN ========= */
+        #homeScreen {
+            padding-top: 64px;
+        }
+
+        .home-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 40px 120px;
+        }
+
+        .home-greeting {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .home-greeting h1 {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .home-greeting p {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .main-search-wrap {
+            width: 100%;
+            max-width: 720px;
+            position: relative;
+        }
+
+        .main-search-input {
+            width: 100%;
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 0;
+            padding: 24px 80px 24px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 6px 6px 0px 0px var(--navy);
+        }
+
+        .main-search-input::placeholder {
+            color: var(--navy);
+            opacity: 0.5;
+        }
+
+        .main-search-input:focus {
+            background: var(--yellow);
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0px 0px var(--navy);
+        }
+
+        .main-search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 0;
+            background: var(--navy);
+            border: 2px solid var(--navy);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 800;
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .main-search-btn:hover {
+            background: var(--yellow);
+            color: var(--navy);
+            transform: translateY(-50%) translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 48px;
+        }
+
+        .suggestion-card {
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 4px 4px 0px 0px var(--navy);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .suggestion-card:hover {
+            background: var(--yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .suggestion-card h4 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--navy);
+            text-transform: uppercase;
+        }
+
+        .suggestion-card p {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--navy);
+            line-height: 1.4;
+        }
+
+        .home-footer {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+            padding: 24px;
+            border-top: 2px solid var(--navy);
+            background: var(--yellow);
+            width: 100%;
+        }
+
+        /* ========= CHAT SCREEN ========= */
+        #chatScreen {
+            padding-top: 64px;
+        }
+
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 24px 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            background: var(--white);
+        }
+
+        .chat-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-body::-webkit-scrollbar-track {
+            background: var(--white);
+            border-left: 2px solid var(--navy);
+        }
+
+        .chat-body::-webkit-scrollbar-thumb {
+            background: var(--navy);
+            border: 2px solid var(--navy);
+        }
+
+        .message-row {
+            width: 100%;
+            max-width: 720px;
+        }
+
+        .question-bubble {
+            background: var(--yellow);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-left: auto;
+            max-width: 85%;
+            width: fit-content;
+            line-height: 1.5;
+            box-shadow: 4px 4px 0px 0px var(--navy);
+        }
+
+        .answer-card {
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 0;
+            padding: 24px 32px;
+            width: 100%;
+            box-shadow: 6px 6px 0px 0px var(--navy);
+        }
+
+        .answer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--navy);
+            color: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .answer-badge.deny {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .answer-badge.conflict {
+            background: var(--yellow);
+            color: var(--navy);
+        }
+
+        .answer-badge.general {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .answer-badge.escalated {
+            background: var(--yellow);
+            color: var(--navy);
+        }
+
+        .answer-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--navy);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .answer-text strong {
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .answer-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 2px solid var(--navy);
+        }
+
+        .btn-ghost {
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy);
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .btn-ghost:hover {
+            background: var(--yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .thinking-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: none;
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 12px 0 0 0;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            margin-top: 16px;
+            text-transform: uppercase;
+        }
+
+        .thinking-toggle:hover {
+            color: var(--navy);
+            background: var(--yellow);
+            padding: 12px 8px;
+        }
+
+        .thinking-toggle .chevron {
+            transition: transform 0.2s ease;
+            font-size: 12px;
+        }
+
+        .thinking-toggle.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .thinking-panel {
+            display: none;
+            background: var(--white);
+            border: 2px solid var(--navy);
+            border-radius: 0;
+            padding: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 12px;
+            box-shadow: inset 2px 2px 0px 0px var(--navy);
+        }
+
+        .audit-id {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-top: 16px;
+            font-family: monospace;
+            background: var(--yellow);
+            padding: 4px 8px;
+            display: inline-block;
+            border: 2px solid var(--navy);
+        }
+
+        /* Thinking indicator */
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 24px;
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 0;
+            width: 100%;
+            max-width: 720px;
+            box-shadow: 6px 6px 0px 0px var(--navy);
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .thinking-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 0;
+            background: var(--navy);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .thinking-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .thinking-label {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy);
+            text-transform: uppercase;
+        }
+
+        /* ========= FLOATING SEARCH BAR ========= */
+        .chat-input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 24px 32px;
+            background: var(--white);
+            border-top: 3px solid var(--navy);
+            display: flex;
+            justify-content: center;
+        }
+
+        .chat-input-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+        }
+
+        .chat-input {
+            width: 100%;
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 0;
+            padding: 20px 64px 20px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            resize: none;
+            transition: var(--transition);
+            line-height: 1.5;
+            max-height: 160px;
+            overflow-y: auto;
+            box-shadow: 6px 6px 0px 0px var(--navy);
+        }
+
+        .chat-input::placeholder {
+            color: var(--navy);
+            opacity: 0.5;
+        }
+
+        .chat-input:focus {
+            background: var(--yellow);
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0px 0px var(--navy);
+        }
+
+        .chat-send-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 0;
+            background: var(--navy);
+            border: 2px solid var(--navy);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--white);
+            box-shadow: 3px 3px 0px 0px var(--navy);
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            background: var(--yellow);
+            color: var(--navy);
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .chat-footer {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-top: 12px;
+        }
+
+        /* ========= ANIMATIONS ========= */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+
+            30% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ========= MODALS ========= */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 59, 115, 0.8);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 3px solid var(--border);
+            border-radius: 0;
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+            position: relative;
+            box-shadow: 8px 8px 0px 0px var(--border);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--white);
+            border: 2px solid var(--navy);
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--navy);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 2px 2px 0px 0px var(--navy);
+        }
+
+        .modal-close:hover {
+            background: var(--yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px var(--navy);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .modal-sub {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: -16px;
+            margin-bottom: 24px;
+        }
+
+        .policy-item {
+            border: 2px solid var(--navy);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 4px 4px 0px 0px var(--navy);
+        }
+
+        .policy-item-title {
+            font-weight: 800;
+            color: var(--navy);
+            font-size: 16px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .policy-item-body {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* ========= RESPONSIVE ========= */
+        @media (max-width: 520px) {
+            .login-card {
+                padding: 32px 24px;
+                margin: 20px;
+            }
+
+            .suggestions {
+                grid-template-columns: 1fr;
+            }
+
+            .app-header {
+                padding: 0 16px;
+            }
+
+            .home-greeting h1 {
+                font-size: 32px;
+            }
+
+            .main-search-input {
+                padding: 16px 60px 16px 16px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ====== LOGIN SCREEN ====== -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-card">
+            <div class="login-logo-section">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z" />
+                </svg>
+                <div class="login-title">POLARIS</div>
+                <div class="login-subtitle">Sign in to continue</div>
+            </div>
+            <div id="loginError" class="login-error"></div>
+            <div class="field-group">
+                <label class="field-label" for="loginUsername">Full Name</label>
+                <input type="text" id="loginUsername" class="field-input" placeholder="e.g. Arjun Mehta"
+                    autocomplete="name">
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="field-input" placeholder="••••••••"
+                    autocomplete="current-password">
+            </div>
+            <button id="loginBtn" class="btn-primary" onclick="login()">Log in</button>
+            <div class="login-footer">Secure access for authorised employees</div>
+            <div style="text-align:center;margin-top:16px;">
+                <a href="/admin.html"
+                    style="font-size:14px;font-weight:700;color:var(--navy);text-decoration:none;transition:var(--transition);text-transform:uppercase;"
+                    onmouseover="this.style.color='var(--yellow)';this.style.background='var(--navy)';this.style.padding='4px 8px';"
+                    onmouseout="this.style.color='var(--navy)';this.style.background='transparent';this.style.padding='0';">Admin
+                    Portal &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== HOME SCREEN ====== -->
+    <div id="homeScreen" class="screen">
+        <header class="app-header">
+            <a class="star-logo" href="#">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z" />
+                </svg>
+                <span class="star-logo-text">POLARIS</span>
+            </a>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <button class="btn-ghost" style="padding:6px 12px;font-size:13px;" onclick="showMessages()">
+                    MESSAGES <span id="homeMsgBadge"
+                        style="background:var(--navy);color:var(--white);padding:2px 6px;border-radius:12px;margin-left:4px;display:none;">0</span>
+                </button>
+                <div class="user-pill" onclick="toggleDropdown()">
+                    <div class="user-avatar" id="headerAvatar">A</div>
+                    <span class="user-pill-name" id="headerName">Logged in as …</span>
+                    <span class="user-pill-chevron">▾</span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item" id="ddProfile"></div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="logout()">⬡ &nbsp;Sign out</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="home-body">
+            <div class="home-greeting">
+                <h1>How can I help?</h1>
+                <p>Ask about policies, leave, data access, benefits, or workplace processes.</p>
+            </div>
+            <div class="main-search-wrap">
+                <input type="text" id="homeSearchInput" class="main-search-input" placeholder="Ask POLARIS anything…"
+                    onkeydown="handleHomeKey(event)">
+                <button class="main-search-btn" onclick="submitHomeSearch()" title="Send">+</button>
+            </div>
+            <div class="suggestions">
+                <div class="suggestion-card"
+                    onclick="fillQuestion('How many days of annual leave can I carry forward?')">
+                    <h4>Annual leave</h4>
+                    <p>How much leave can I carry forward?</p>
+                </div>
+                <div class="suggestion-card"
+                    onclick="fillQuestion('Can I share internal data with an external vendor?')">
+                    <h4>Data sharing</h4>
+                    <p>Sharing data with external parties</p>
+                </div>
+                <div class="suggestion-card"
+                    onclick="fillQuestion('Can I access customer records from my personal laptop?')">
+                    <h4>Device policy</h4>
+                    <p>Accessing records on personal devices</p>
+                </div>
+                <div class="suggestion-card"
+                    onclick="fillQuestion('What is the data retention period for financial records?')">
+                    <h4>Data retention</h4>
+                    <p>How long can records be stored?</p>
+                </div>
+                <div class="suggestion-card" onclick="fillQuestion('Can I work remotely from another country?')">
+                    <h4>Remote work</h4>
+                    <p>Cross-border remote working rules</p>
+                </div>
+                <div class="suggestion-card"
+                    onclick="fillQuestion('What are the security requirements for external vendors?')">
+                    <h4>Vendor security</h4>
+                    <p>Requirements for third-party vendors</p>
+                </div>
+            </div>
+        </div>
+        <div class="home-footer">Your conversations stay within your organisation</div>
+    </div>
+
+    <!-- ====== CHAT SCREEN ====== -->
+    <div id="chatScreen" class="screen">
+        <header class="app-header">
+            <a class="star-logo" href="#" onclick="goHome(); return false;">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z" />
+                </svg>
+                <span class="star-logo-text">POLARIS</span>
+            </a>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <button class="btn-ghost" style="padding:6px 12px;font-size:13px;" onclick="showMessages()">
+                    MESSAGES <span id="chatMsgBadge"
+                        style="background:var(--navy);color:var(--white);padding:2px 6px;border-radius:12px;margin-left:4px;display:flex;">0</span>
+                </button>
+                <div class="user-pill" onclick="toggleDropdown()">
+                    <div class="user-avatar" id="chatHeaderAvatar">A</div>
+                    <span class="user-pill-name" id="chatHeaderName">Logged in as …</span>
+                    <span class="user-pill-chevron">▾</span>
+                    <div class="user-dropdown" id="chatUserDropdown">
+                        <div class="dropdown-item" id="chatDdProfile"></div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="logout()">⬡ &nbsp;Sign out</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="chat-body" id="chatBody"></div>
+
+        <div class="chat-input-bar">
+            <div class="chat-input-wrap">
+                <textarea id="chatInput" class="chat-input" rows="1" placeholder="Ask a follow-up…"
+                    onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="chat-send-btn" id="chatSendBtn" onclick="submitChat()" title="Send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== MESSAGES SCREEN ====== -->
+    <div id="messagesScreen" class="screen" style="padding-top:40px">
+        <header class="app-header">
+            <a class="star-logo" href="#" onclick="goHome(); return false;">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.5 8.5H20L14.75 12.5L16.5 19L12 15.25L7.5 19L9.25 12.5L4 8.5H10.5L12 2Z" />
+                </svg>
+                <span class="star-logo-text">POLARIS</span>
+            </a>
+            <div class="user-pill" onclick="toggleDropdown()">
+                <div class="user-avatar" id="msgHeaderAvatar">A</div>
+                <span class="user-pill-name" id="msgHeaderName">Logged in as …</span>
+                <span class="user-pill-chevron">▾</span>
+                <div class="user-dropdown" id="msgUserDropdown">
+                    <div class="dropdown-item" id="msgDdProfile"></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" onclick="logout()">⬡ &nbsp;Sign out</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="home-body" style="padding-top:40px;">
+            <div style="width:100%;max-width:720px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <h2 style="font-size:24px;font-weight:800;color:var(--navy);text-transform:uppercase;">My
+                        Escalations</h2>
+                    <button class="btn-ghost" onclick="goHome()">Back to Chat</button>
+                </div>
+                <div id="messagesList" style="display:flex;flex-direction:column;gap:16px;">
+                    <!-- Messages go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== MODALS ====== -->
+    <div class="modal-backdrop" id="modal-policyRef">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('policyRef')">X</button>
+            <div class="modal-title">Policy Reference</div>
+            <div class="modal-sub">Policies that apply to this decision:</div>
+            <div id="policyRefContent"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
